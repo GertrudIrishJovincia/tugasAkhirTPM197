@@ -5,6 +5,8 @@ import 'package:proyekakhir/components/widgets/productCard.dart';
 import 'package:proyekakhir/components/widgets/standSearchBar.dart';
 import 'package:proyekakhir/config/app/appColor.dart';
 import 'package:proyekakhir/config/app/appFont.dart';
+import 'package:proyekakhir/pages/product/favoritePage.dart';
+import 'package:proyekakhir/pages/product/orderHistoryPage.dart';
 import 'package:proyekakhir/pages/product/productPage.dart';
 
 class HomePage extends StatefulWidget {
@@ -56,6 +58,42 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.white,
+      appBar: AppBar(
+        backgroundColor: AppColor.white,
+        elevation: 0,
+        title: Text(
+          'Hi there!',
+          style: AppFont.nunitoSansBold.copyWith(
+            fontSize: 20,
+            color: AppColor.dark,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.favorite_border),
+            color: AppColor.primary,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FavoritePage()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.history),
+            color: AppColor.primary,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const OrderHistoryPage(),
+                ),
+              );
+            },
+          ),
+        ],
+        iconTheme: const IconThemeData(color: AppColor.dark),
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _refresh,
@@ -68,54 +106,17 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Hi there!',
-                                style: AppFont.nunitoSansBold.copyWith(
-                                  fontSize: 20,
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                'What are you looking for today?',
-                                style: AppFont.nunitoSansRegular.copyWith(
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              debugPrint("Logout tapped");
-                            },
-                            child: const Icon(
-                              Icons.logout,
-                              color: AppColor.dark,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColor.gray),
-                          borderRadius: BorderRadius.circular(28),
-                        ),
-                        child: const StandSearchBar(
-                          'Search cake, cookies, anything..',
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColor.gray),
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                    child: const StandSearchBar(
+                      'Search cake, cookies, anything..',
+                    ),
                   ),
+                  const SizedBox(height: 16),
+
                   SizedBox(
                     height: 100,
                     width: double.infinity,
@@ -214,6 +215,8 @@ class _HomePageState extends State<HomePage> {
                         ),
                     ],
                   ),
+
+                  const SizedBox(height: 24),
 
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

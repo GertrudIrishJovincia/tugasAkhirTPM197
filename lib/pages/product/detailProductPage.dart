@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:proyekakhir/components/customWidgets/button.dart';
 import 'package:proyekakhir/components/customWidgets/image.dart';
 import 'package:proyekakhir/config/app/appColor.dart';
 import 'package:proyekakhir/config/app/appFont.dart';
 import 'package:proyekakhir/helpers/moneyFormat.dart';
 import 'package:custom_radio_grouped_button/custom_radio_grouped_button.dart';
+import 'package:proyekakhir/pages/cart/cartPage.dart';
+import 'package:proyekakhir/providers/cardProviders.dart';
+import 'package:proyekakhir/providers/favoriteProvider.dart';
 
 class DetailProductPage extends StatelessWidget {
   final Map<String, dynamic> product;
@@ -13,6 +17,9 @@ class DetailProductPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final favoriteProvider = Provider.of<FavoriteProvider>(context);
+    final isFavorite = favoriteProvider.isFavorite(product['id']);
+
     return Scaffold(
       backgroundColor: AppColor.white,
       appBar: AppBar(
@@ -21,9 +28,24 @@ class DetailProductPage extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              debugPrint('Favorite tapped');
+              if (isFavorite) {
+                favoriteProvider.removeFavorite(product['id']);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Produk dihapus dari favorit')),
+                );
+              } else {
+                favoriteProvider.addFavorite(product);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Produk ditambahkan ke favorit'),
+                  ),
+                );
+              }
             },
-            icon: const Icon(Icons.favorite_outline),
+            icon: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_outline,
+              color: AppColor.red,
+            ),
           ),
         ],
       ),
@@ -160,7 +182,15 @@ class DetailProductPage extends StatelessWidget {
             ),
             PillsButton(
               onPressed: () {
-                debugPrint('Add to cart pressed');
+                Provider.of<CartProvider>(
+                  context,
+                  listen: false,
+                ).addItem(product);
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CartPage()),
+                );
               },
               fullWidthButton: false,
               text: 'Add to cart',
