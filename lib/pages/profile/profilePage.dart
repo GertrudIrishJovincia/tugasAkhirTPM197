@@ -6,15 +6,37 @@ import 'package:proyekakhir/config/app/appFont.dart';
 import 'package:proyekakhir/components/customWidgets/button.dart';
 import 'package:proyekakhir/pages/auth/loginPage.dart';
 import 'package:proyekakhir/pages/dashboard/dashboard.dart';
+import 'package:proyekakhir/util/local_storage.dart';
 
-class ProfilePage extends StatelessWidget {
-  final Map<String, String> dummyUser = {
-    'email': 'irish@gmail.com',
-    'displayName': 'Irish Jovincia',
-    'uid': '1234567890',
-  };
-
+class ProfilePage extends StatefulWidget {
   ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String _username = "Loading...";
+
+  void initState() {
+    super.initState();
+    loadUsername();
+  }
+
+  void logout(BuildContext context) async {
+    await LocalStorage.logout();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+    );
+  }
+
+  void loadUsername() async {
+    String? name = await LocalStorage.getUsername();
+    setState(() {
+      _username = name ?? "Guest";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,9 +78,7 @@ class ProfilePage extends StatelessWidget {
                     end: Alignment.bottomCenter,
                   ),
                 ),
-                child: Center(
-                  child: UserInfoAvatars(email: dummyUser['email']!),
-                ),
+                child: Center(child: UserInfoAvatars(email: "emaildah")),
               ),
 
               Padding(
@@ -78,7 +98,7 @@ class ProfilePage extends StatelessWidget {
                       children: [
                         Center(
                           child: Text(
-                            dummyUser['displayName'] ?? 'Nama tidak tersedia',
+                            _username ?? 'Nama tidak tersedia',
                             style: AppFont.nunitoSansBold.copyWith(
                               fontSize: 24,
                               color: AppColor.dark,
@@ -88,12 +108,12 @@ class ProfilePage extends StatelessWidget {
                         const SizedBox(height: 24),
                         InfoDivider(
                           title: 'Name',
-                          value: dummyUser['displayName'] ?? 'Nama tidak ada',
+                          value: _username ?? 'Nama tidak ada',
                         ),
                         const SizedBox(height: 24),
                         InfoDivider(
                           title: 'Email',
-                          value: dummyUser['email'] ?? 'Tidak ada email',
+                          value: _username ?? 'Tidak ada email',
                         ),
                         const SizedBox(height: 32),
 
@@ -105,15 +125,7 @@ class ProfilePage extends StatelessWidget {
                             fontSize: 16,
                             paddingSize: 0,
                             fullWidthButton: true,
-                            onPressed: () {
-                              debugPrint('Logout tapped');
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const LoginPage(),
-                                ),
-                              );
-                            },
+                            onPressed: () => logout(context),
                           ),
                         ),
                       ],

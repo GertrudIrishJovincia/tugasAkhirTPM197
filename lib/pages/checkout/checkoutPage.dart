@@ -5,6 +5,7 @@ import 'package:proyekakhir/config/app/appColor.dart';
 import 'package:proyekakhir/config/app/appFont.dart';
 import 'package:proyekakhir/helpers/moneyFormat.dart';
 import 'package:proyekakhir/providers/cardProviders.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -21,6 +22,25 @@ class _CheckoutPageState extends State<CheckoutPage> {
   void dispose() {
     _addressController.dispose();
     super.dispose();
+  }
+
+  // Simpan pesanan ke SharedPreferences
+  Future<void> _saveOrderToPreferences(List<Map<String, dynamic>> items) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Mengonversi item keranjang menjadi string JSON
+    List<String> productsJson = items.map((item) {
+      return '{"id": "${item['id']}", "productName": "${item['productName']}", "productPrice": ${item['productPrice']}, "productImage": "${item['productImage']}"}';
+    }).toList();
+
+    // Menyimpan data pesanan
+    await prefs.setStringList('orderItems', productsJson);
+    await prefs.setString('shippingAddress', _addressController.text);
+    await prefs.setString('paymentMethod', _paymentMethod);
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Pesanan berhasil disimpan')));
   }
 
   @override
@@ -133,7 +153,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 fullWidthButton: true,
                 fontSize: 18,
                 paddingSize: 0,
-                onPressed: () {
+                onPressed: () async {
                   final address = _addressController.text.trim();
                   if (address.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -149,6 +169,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     );
                     return;
                   }
+
+                  // Simpan pesanan ke SharedPreferences
+                  await _saveOrderToPreferences(items);
 
                   // Kosongkan keranjang
                   cart.clear();

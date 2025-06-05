@@ -5,9 +5,12 @@ import 'package:proyekakhir/components/widgets/productCard.dart';
 import 'package:proyekakhir/components/widgets/standSearchBar.dart';
 import 'package:proyekakhir/config/app/appColor.dart';
 import 'package:proyekakhir/config/app/appFont.dart';
+import 'package:proyekakhir/models/product.dart';
+import 'package:proyekakhir/pages/product/detailProductPage.dart';
 import 'package:proyekakhir/pages/product/favoritePage.dart';
 import 'package:proyekakhir/pages/product/orderHistoryPage.dart';
 import 'package:proyekakhir/pages/product/productPage.dart';
+import 'package:proyekakhir/services/apiservice.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,41 +20,34 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List dummyProducts = [
-    {
-      "id": 1,
-      "productImage":
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwEuDw3mdCJyGJ3wM1uIngWezPpcPFYElNAg&s",
-      "productName": "Chocolate Cake",
-      "productPrice": 10000,
-    },
-    {
-      "id": 2,
-      "productImage":
-          "https://www.rainbownourishments.com/wp-content/uploads/2024/02/vegan-strawberry-sugar-cookies-1.jpg",
-      "productName": "Strawberry Cookie",
-      "productPrice": 5000,
-    },
-  ];
-
-  final List dummyOutlets = [
-    {
-      "image":
-          "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/25/fb/ca/e5/the-mandarin-cake-shop.jpg?w=500&h=-1&s=1",
-      "address": "Outlet Klaten",
-    },
-    {
-      "image":
-          "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/25/fb/ca/e5/the-mandarin-cake-shop.jpg?w=500&h=-1&s=1",
-      "address": "Outlet Yogyakarta",
-    },
-  ];
-
+  List<Product> products = [];
   bool isLoadingProducts = false;
   bool isLoadingOutlets = false;
 
   Future<void> _refresh() async {
     await Future.delayed(const Duration(seconds: 1));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProductsFromApi(); // Memanggil fungsi fetchProducts saat widget dimuat
+  }
+
+  Future<void> fetchProductsFromApi() async {
+    try {
+      final fetchedProducts = await Apiservice.fetchProducts();
+      setState(() {
+        products = fetchedProducts;
+        isLoadingProducts = false; // Pastikan ini diubah ke false
+      });
+    } catch (e) {
+      setState(() {
+        isLoadingProducts =
+            false; // Tetap menonaktifkan loading meskipun terjadi error
+      });
+      print('Error fetching products: $e');
+    }
   }
 
   @override
@@ -160,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const ProductPage(),
+                                  builder: (context) => const Productpage(),
                                 ),
                               );
                             },
@@ -189,9 +185,10 @@ class _HomePageState extends State<HomePage> {
                             scrollDirection: Axis.horizontal,
                             shrinkWrap: true,
                             physics: const AlwaysScrollableScrollPhysics(),
-                            itemCount: dummyProducts.length,
+                            itemCount: products.length,
                             itemBuilder: (context, index) {
-                              final product = dummyProducts[index];
+                              final product = products[index];
+
                               return Padding(
                                 padding: const EdgeInsets.only(
                                   right: 16,
@@ -199,14 +196,18 @@ class _HomePageState extends State<HomePage> {
                                   bottom: 20,
                                 ),
                                 child: ProductCard(
-                                  url: product["productImage"],
+                                  url: '${product.productImage}',
                                   productName:
-                                      "${product["productName"]}-${product["id"]}",
-                                  productPrice: product["productPrice"],
+                                      "${product.productName}-${product.id}",
+                                  productPrice: product.productPrice,
                                   onPressed: () {
-                                    debugPrint(
-                                      "Navigate to product detail: ${product["id"]}",
-                                    );
+                                    // Navigator.push(
+                                    //   context,
+                                    //   MaterialPageRoute(
+                                    //     builder: (context) =>
+                                    //         DetailProductPage(product: product),
+                                    //   ),
+                                    // );
                                   },
                                 ),
                               );
@@ -245,13 +246,13 @@ class _HomePageState extends State<HomePage> {
                                 mainAxisSpacing: 12.0,
                                 crossAxisSpacing: 12.0,
                               ),
-                          itemCount: dummyOutlets.length,
+                          itemCount: products.length,
                           itemBuilder: (context, index) {
-                            final outlet = dummyOutlets[index];
-                            return OutletImage(
-                              url: outlet["image"],
-                              text: outlet["address"],
-                            );
+                            final product = products[index];
+                            // return OutletImage(
+                            //   url: outlet["image"],
+                            //   text: outlet["address"],
+                            // );
                           },
                         ),
                     ],

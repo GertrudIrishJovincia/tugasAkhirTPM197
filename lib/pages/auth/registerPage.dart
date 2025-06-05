@@ -5,6 +5,7 @@ import 'package:proyekakhir/components/customWidgets/toast.dart';
 import 'package:proyekakhir/config/app/appColor.dart';
 import 'package:proyekakhir/config/app/appFont.dart';
 import 'package:proyekakhir/pages/auth/loginPage.dart';
+import 'package:proyekakhir/util/local_storage.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -18,24 +19,44 @@ class _RegisterPageState extends State<RegisterPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final passwordConfirmationController = TextEditingController();
+  bool _isError = false;
 
-  Future<void> _submit(BuildContext context) async {
-    if (_formKey.currentState!.validate()) {
-      debugPrint("Email: ${emailController.text}");
-      debugPrint("Password: ${passwordController.text}");
+  // Future<void> _submit(BuildContext context) async {
+  //   if (_formKey.currentState!.validate()) {
+  //     debugPrint("Email: ${emailController.text}");
+  //     debugPrint("Password: ${passwordController.text}");
 
-      await successToast(
-        context,
-        text: 'Berhasil mendaftar, silahkan tunggu beberapa saat',
-      );
+  //     await successToast(
+  //       context,
+  //       text: 'Berhasil mendaftar, silahkan tunggu beberapa saat',
+  //     );
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
-    } else {
-      debugPrint("Form tidak valid");
+  //     Navigator.pushReplacement(
+  //       context,
+  //       MaterialPageRoute(builder: (context) => const LoginPage()),
+  //     );
+  //   } else {
+  //     debugPrint("Form tidak valid");
+  //   }
+  // }
+
+  void _submit() async {
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      setState(() => _isError = true);
+      return;
     }
+
+    // Simpan username & password di SharedPreferences
+    await LocalStorage.saveUser(
+      emailController.text.trim(),
+      passwordController.text,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Registrasi berhasil! Silakan login.")),
+    );
+
+    Navigator.pop(context); // Kembali ke login
   }
 
   @override
@@ -135,7 +156,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         text: 'Mendaftar',
                         fontSize: 16,
                         paddingSize: 80,
-                        onPressed: () => _submit(context),
+                        onPressed: _submit,
                       ),
                       const SizedBox(height: 30),
                       GestureDetector(

@@ -5,6 +5,7 @@ import 'package:proyekakhir/config/app/appColor.dart';
 import 'package:proyekakhir/config/app/appFont.dart';
 import 'package:proyekakhir/pages/auth/forgotPasswordPage.dart';
 import 'package:proyekakhir/pages/auth/registerPage.dart';
+import 'package:proyekakhir/util/local_storage.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,10 +18,26 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool _isError = false;
 
-  void _submit(BuildContext context) {
-    if (_formKey.currentState!.validate()) {
+  void _submit() async {
+    bool valid = await LocalStorage.checkUserPassword(
+      emailController.text.trim(),
+      passwordController.text,
+    );
+    if (valid) {
+      setState(() {
+        _isError = false;
+      });
+      await LocalStorage.login(emailController.text.trim());
       Navigator.pushReplacementNamed(context, '/dashboard');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Username atau password salah!")),
+      );
+      setState(() {
+        _isError = true;
+      });
     }
   }
 
@@ -108,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                         text: 'Masuk',
                         fontSize: 16,
                         paddingSize: 80,
-                        onPressed: () => _submit(context),
+                        onPressed: _submit,
                       ),
                       const SizedBox(height: 30),
                       GestureDetector(

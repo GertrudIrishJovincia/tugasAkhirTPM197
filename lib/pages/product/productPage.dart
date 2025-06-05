@@ -1,52 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:proyekakhir/components/widgets/productCard.dart';
-import 'package:proyekakhir/components/widgets/standSearchBar.dart';
+// import 'package:proyekakhir/components/widgets/standSearchBar.dart';
 import 'package:proyekakhir/config/app/appColor.dart';
 import 'package:proyekakhir/config/app/appFont.dart';
 import 'package:proyekakhir/pages/product/detailProductPage.dart';
+import 'package:proyekakhir/services/apiservice.dart'; // Pastikan kamu sudah punya API service
 
-class ProductPage extends StatefulWidget {
-  const ProductPage({super.key});
+class Productpage extends StatefulWidget {
+  const Productpage({super.key});
 
   @override
-  State<ProductPage> createState() => _ProductPageState();
+  State<Productpage> createState() => _ProductpageState();
 }
 
-class _ProductPageState extends State<ProductPage>
+class _ProductpageState extends State<Productpage>
     with TickerProviderStateMixin {
   List<String> categories = ['Cake', 'Cookies', 'Cupcake'];
   String selectedCategory = 'Cake';
+  bool isLoading = true;
 
-  bool isLoading = false;
-
+  // Produk yang dikelompokkan berdasarkan kategori
   final Map<String, List<Map<String, dynamic>>> productsByCategory = {
-    'Cake': [
-      {
-        "id": 1,
-        "productImage":
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwEuDw3mdCJyGJ3wM1uIngWezPpcPFYElNAg&s",
-        "productName": "Chocolate Cake",
-        "productPrice": 10000,
-      },
-      {
-        "id": 2,
-        "productImage":
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7x6786VLvfSL2E7XqCKdbO6W844Acv2y5aA&s",
-        "productName": "Vanilla Cake",
-        "productPrice": 12000,
-      },
-    ],
-    'Cookies': [
-      {
-        "id": 3,
-        "productImage":
-            "https://www.onceuponachef.com/images/2021/11/Best-Chocolate-Chip-Cookies-1200x1499.jpg",
-        "productName": "Chocolate Chip Cookie",
-        "productPrice": 5000,
-      },
-    ],
+    'Cake': [],
+    'Cookies': [],
     'Cupcake': [],
   };
+
+  // Variabel untuk menyimpan query pencarian
+  String searchQuery = '';
 
   late TabController _tabController;
 
@@ -57,8 +38,14 @@ class _ProductPageState extends State<ProductPage>
     _tabController.addListener(() {
       setState(() {
         selectedCategory = categories[_tabController.index];
+        fetchProductsByCategory(
+          selectedCategory,
+        ); // Memperbarui produk berdasarkan kategori
       });
     });
+    fetchProductsByCategory(
+      selectedCategory,
+    ); // Ambil produk saat halaman dimuat pertama kali
   }
 
   @override
@@ -67,8 +54,40 @@ class _ProductPageState extends State<ProductPage>
     super.dispose();
   }
 
+  Future<void> fetchProductsByCategory(String category) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final products = await Apiservice.fetchProductsByCategory(
+        category,
+      ); // Mengambil produk berdasarkan kategori
+      setState(() {
+        productsByCategory[category] = products;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error fetching products: $e');
+    }
+  }
+
   List<Map<String, dynamic>> get currentProducts =>
       productsByCategory[selectedCategory] ?? [];
+
+  List<Map<String, dynamic>> get filteredProducts {
+    // Memfilter produk berdasarkan pencarian
+    return currentProducts
+        .where(
+          (product) => product['productName'].toLowerCase().contains(
+            searchQuery.toLowerCase(),
+          ),
+        )
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +96,7 @@ class _ProductPageState extends State<ProductPage>
         body: Center(child: CircularProgressIndicator(color: AppColor.primary)),
       );
     }
+
     return DefaultTabController(
       length: categories.length,
       child: Scaffold(
@@ -90,7 +110,18 @@ class _ProductPageState extends State<ProductPage>
               border: Border.all(color: AppColor.gray),
               borderRadius: BorderRadius.circular(28),
             ),
-            child: const StandSearchBar('Search cake, cookies, anything..'),
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value;
+                });
+              },
+              decoration: InputDecoration(
+                hintText: 'Search cake, cookies, anything..',
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              ),
+            ),
           ),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(80),
@@ -127,7 +158,9 @@ class _ProductPageState extends State<ProductPage>
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: ProductTabView(products: currentProducts),
+              child: ProductTabView(
+                products: filteredProducts,
+              ), // Gunakan filteredProducts
             ),
           ),
         ),
@@ -163,10 +196,11 @@ class ProductTabView extends StatelessWidget {
           productPrice: product["productPrice"],
           productName: product["productName"],
           onPressed: () {
+            // Panggil halaman DetailProductPage
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => DetailProductPage(product: product),
+                builder: (context) => DetailProductPage(id: product["id"]),
               ),
             );
           },
