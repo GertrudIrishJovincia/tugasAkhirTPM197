@@ -6,6 +6,7 @@ import 'package:proyekakhir/config/app/appFont.dart';
 import 'package:proyekakhir/components/customWidgets/button.dart';
 import 'package:proyekakhir/pages/auth/loginPage.dart';
 import 'package:proyekakhir/pages/dashboard/dashboard.dart';
+import 'package:proyekakhir/pages/auth/editProfilePage.dart';
 import 'package:proyekakhir/util/local_storage.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -17,10 +18,12 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   String _username = "Loading...";
+  String _email = "Loading...";
 
+  @override
   void initState() {
     super.initState();
-    loadUsername();
+    loadUserData();
   }
 
   void logout(BuildContext context) async {
@@ -31,11 +34,46 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  void loadUsername() async {
-    String? name = await LocalStorage.getUsername();
-    setState(() {
-      _username = name ?? "Guest";
-    });
+  void loadUserData() async {
+    try {
+      String? username = await LocalStorage.getUsername();
+      String? email = await LocalStorage.getUserEmail();
+
+      setState(() {
+        _username = username ?? "Guest";
+        _email = email ?? "No email";
+      });
+    } catch (e) {
+      print('Error loading user data: $e');
+      setState(() {
+        _username = "Error loading name";
+        _email = "Error loading email";
+      });
+    }
+  }
+
+  void navigateToEditProfile() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            EditProfilePage(currentUsername: _username, currentEmail: _email),
+      ),
+    );
+
+    // Jika ada perubahan, reload data
+    if (result == true) {
+      loadUserData();
+    }
+  }
+
+  // Extract display name from email
+  String getDisplayName(String fullName) {
+    if (fullName.contains('@')) {
+      return fullName.split('@')[0];
+    } else {
+      return fullName.split(' ')[0];
+    }
   }
 
   @override
@@ -53,7 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
           },
         ),
         title: Text(
-          'Profile',
+          'Profiles',
           style: AppFont.nunitoSansSemiBold.copyWith(
             fontSize: 18,
             color: AppColor.dark,
@@ -78,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     end: Alignment.bottomCenter,
                   ),
                 ),
-                child: Center(child: UserInfoAvatars(email: "emaildah")),
+                child: Center(child: UserInfoAvatars(email: _email)),
               ),
 
               Padding(
@@ -98,7 +136,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         Center(
                           child: Text(
-                            _username ?? 'Nama tidak tersedia',
+                            getDisplayName(_username),
                             style: AppFont.nunitoSansBold.copyWith(
                               fontSize: 24,
                               color: AppColor.dark,
@@ -108,15 +146,29 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(height: 24),
                         InfoDivider(
                           title: 'Name',
-                          value: _username ?? 'Nama tidak ada',
+                          value: getDisplayName(_username),
                         ),
-                        const SizedBox(height: 24),
-                        InfoDivider(
-                          title: 'Email',
-                          value: _username ?? 'Tidak ada email',
-                        ),
+                        const SizedBox(height: 16),
+                        InfoDivider(title: 'Email', value: _email),
                         const SizedBox(height: 32),
 
+                        // Edit Profile Button
+                        SizedBox(
+                          width: double.infinity,
+                          child: PillsButton(
+                            text: 'Edit Profile',
+                            backgroundColor: AppColor.gray.withOpacity(0.2),
+                            textColor: AppColor.dark,
+                            fontSize: 16,
+                            paddingSize: 0,
+                            fullWidthButton: true,
+                            onPressed: navigateToEditProfile,
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Logout Button
                         SizedBox(
                           width: double.infinity,
                           child: PillsButton(

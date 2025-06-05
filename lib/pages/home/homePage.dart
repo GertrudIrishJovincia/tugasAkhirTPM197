@@ -11,6 +11,7 @@ import 'package:proyekakhir/pages/product/favoritePage.dart';
 import 'package:proyekakhir/pages/product/orderHistoryPage.dart';
 import 'package:proyekakhir/pages/product/productPage.dart';
 import 'package:proyekakhir/services/apiservice.dart';
+import 'package:proyekakhir/util/local_storage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -23,30 +24,60 @@ class _HomePageState extends State<HomePage> {
   List<Product> products = [];
   bool isLoadingProducts = false;
   bool isLoadingOutlets = false;
+  String _username = "User"; // Default username
 
   Future<void> _refresh() async {
     await Future.delayed(const Duration(seconds: 1));
+    await fetchProductsFromApi();
+    await loadUsername();
   }
 
   @override
   void initState() {
     super.initState();
+    loadUsername();
     fetchProductsFromApi(); // Memanggil fungsi fetchProducts saat widget dimuat
   }
 
+  // Load username dari localStorage
+  Future<void> loadUsername() async {
+    try {
+      String? username = await LocalStorage.getUsername();
+      setState(() {
+        _username = username ?? "User";
+      });
+    } catch (e) {
+      print('Error loading username: $e');
+    }
+  }
+
   Future<void> fetchProductsFromApi() async {
+    setState(() {
+      isLoadingProducts = true;
+    });
+
     try {
       final fetchedProducts = await Apiservice.fetchProducts();
       setState(() {
         products = fetchedProducts;
-        isLoadingProducts = false; // Pastikan ini diubah ke false
+        isLoadingProducts = false;
       });
     } catch (e) {
       setState(() {
-        isLoadingProducts =
-            false; // Tetap menonaktifkan loading meskipun terjadi error
+        isLoadingProducts = false;
       });
       print('Error fetching products: $e');
+    }
+  }
+
+  // Extract first name from email atau username
+  String getDisplayName(String fullName) {
+    if (fullName.contains('@')) {
+      // Jika berupa email, ambil bagian sebelum @
+      return fullName.split('@')[0];
+    } else {
+      // Jika berupa nama, ambil nama pertama
+      return fullName.split(' ')[0];
     }
   }
 
@@ -58,7 +89,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: AppColor.white,
         elevation: 0,
         title: Text(
-          'Hi there!',
+          'Hi ${getDisplayName(_username)}!',
           style: AppFont.nunitoSansBold.copyWith(
             fontSize: 20,
             color: AppColor.dark,
