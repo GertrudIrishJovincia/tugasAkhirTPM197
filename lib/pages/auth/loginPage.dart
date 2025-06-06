@@ -3,7 +3,6 @@ import 'package:proyekakhir/components/customWidgets/button.dart';
 import 'package:proyekakhir/components/customWidgets/input.dart';
 import 'package:proyekakhir/config/app/appColor.dart';
 import 'package:proyekakhir/config/app/appFont.dart';
-import 'package:proyekakhir/pages/auth/forgotPasswordPage.dart';
 import 'package:proyekakhir/pages/auth/registerPage.dart';
 import 'package:proyekakhir/util/local_storage.dart';
 
@@ -106,18 +105,18 @@ class _LoginPageState extends State<LoginPage> {
                       Row(
                         children: [
                           const Expanded(child: SizedBox()),
-                          GestureDetector(
-                            child: const Text('Lupa Password?'),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ForgotPasswordPage(),
-                                ),
-                              );
-                            },
-                          ),
+                          // GestureDetector(
+                          //   child: const Text('Lupa Password?'),
+                          //   onTap: () {
+                          //     Navigator.push(
+                          //       context,
+                          //       MaterialPageRoute(
+                          //         builder: (context) =>
+                          //             const ForgotPasswordPage(),
+                          //       ),
+                          //     );
+                          //   },
+                          // ),
                         ],
                       ),
                       const SizedBox(height: 25),

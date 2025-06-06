@@ -16,6 +16,7 @@ class ProductCard extends StatelessWidget {
   final String url;
   final int productPrice;
   final String productName;
+
   @override
   Widget build(BuildContext context) {
     return Carding(
@@ -32,61 +33,82 @@ class ProductCard extends StatelessWidget {
               height: 124,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
-                return const Center(child: Icon(Icons.error));
+                return Container(
+                  height: 124,
+                  width: double.infinity,
+                  color: Colors.grey[300],
+                  child: const Center(
+                    child: Icon(Icons.error, color: Colors.grey),
+                  ),
+                );
+              },
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Container(
+                  height: 124,
+                  width: double.infinity,
+                  color: Colors.grey[200],
+                  child: const Center(child: CircularProgressIndicator()),
+                );
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(
-              left: 16,
-              right: 8,
-              top: 8,
-              bottom: 8,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        softWrap: true,
-                        maxLines: 4,
-                        productName,
-                        style: AppFont.nunitoSansSemiBold.copyWith(
-                          color: AppColor.dark,
-                          fontSize: 14,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: 16,
+                right: 8,
+                top: 8,
+                bottom: 8,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          productName.isNotEmpty ? productName : 'No Name',
+                          softWrap: true,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppFont.nunitoSansSemiBold.copyWith(
+                            color: AppColor.dark,
+                            fontSize: 14,
+                            height: 1.2,
+                          ),
                         ),
-                      ),
-                      Text(
-                        formatIDRCurrency(number: productPrice),
-                        style: AppFont.nunitoSansBold.copyWith(
-                          color: AppColor.primary,
-                          fontSize: 12,
+                        const SizedBox(height: 4),
+                        Text(
+                          formatIDRCurrency(number: productPrice),
+                          style: AppFont.nunitoSansBold.copyWith(
+                            color: AppColor.primary,
+                            fontSize: 12,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                // const Expanded(child: SizedBox()),
-                GestureDetector(
-                  onTap: onPressed ?? () {},
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: AppColor.primary,
-                      borderRadius: BorderRadius.all(Radius.circular(100)),
-                    ),
-                    margin: const EdgeInsets.only(left: 28),
-                    padding: const EdgeInsets.all(6),
-                    child: const Icon(
-                      Icons.visibility_rounded,
-                      color: AppColor.white,
-                      size: 12,
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  GestureDetector(
+                    onTap: onPressed ?? () {},
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: AppColor.primary,
+                        borderRadius: BorderRadius.all(Radius.circular(100)),
+                      ),
+                      margin: const EdgeInsets.only(left: 8),
+                      padding: const EdgeInsets.all(6),
+                      child: const Icon(
+                        Icons.visibility_rounded,
+                        color: AppColor.white,
+                        size: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

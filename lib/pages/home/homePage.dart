@@ -6,12 +6,14 @@ import 'package:proyekakhir/components/widgets/standSearchBar.dart';
 import 'package:proyekakhir/config/app/appColor.dart';
 import 'package:proyekakhir/config/app/appFont.dart';
 import 'package:proyekakhir/models/product.dart';
+import 'package:proyekakhir/pages/outlet/detailOutletPage.dart';
 import 'package:proyekakhir/pages/product/detailProductPage.dart';
 import 'package:proyekakhir/pages/product/favoritePage.dart';
 import 'package:proyekakhir/pages/product/orderHistoryPage.dart';
 import 'package:proyekakhir/pages/product/productPage.dart';
 import 'package:proyekakhir/services/apiservice.dart';
 import 'package:proyekakhir/util/local_storage.dart';
+import 'package:proyekakhir/models/outlet.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,35 +24,33 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Product> products = [];
+  List<Outlet> outlets = [];
   bool isLoadingProducts = false;
   bool isLoadingOutlets = false;
   String _username = "User"; // Default username
 
-  Future<void> _refresh() async {
-    await Future.delayed(const Duration(seconds: 1));
-    await fetchProductsFromApi();
-    await loadUsername();
-  }
+  // Fungsi untuk memanggil API dan mengambil data outlet
+  Future<void> fetchOutletsFromApi() async {
+    setState(() {
+      isLoadingOutlets = true;
+    });
 
-  @override
-  void initState() {
-    super.initState();
-    loadUsername();
-    fetchProductsFromApi(); // Memanggil fungsi fetchProducts saat widget dimuat
-  }
-
-  // Load username dari localStorage
-  Future<void> loadUsername() async {
     try {
-      String? username = await LocalStorage.getUsername();
+      final fetchedOutlets =
+          await Apiservice.fetchOutlets(); // Mengambil data outlet
       setState(() {
-        _username = username ?? "User";
+        outlets = fetchedOutlets;
+        isLoadingOutlets = false;
       });
     } catch (e) {
-      print('Error loading username: $e');
+      setState(() {
+        isLoadingOutlets = false;
+      });
+      print('Error fetching outlets: $e');
     }
   }
 
+  // Fungsi untuk mengambil produk dari API
   Future<void> fetchProductsFromApi() async {
     setState(() {
       isLoadingProducts = true;
@@ -70,6 +70,26 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // Load username dari localStorage
+  Future<void> loadUsername() async {
+    try {
+      String? username = await LocalStorage.getUsername();
+      setState(() {
+        _username = username ?? "User";
+      });
+    } catch (e) {
+      print('Error loading username: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadUsername();
+    fetchProductsFromApi(); // Memanggil fungsi fetchProducts saat widget dimuat
+    fetchOutletsFromApi(); // Menambahkan pengambilan data outlet
+  }
+
   // Extract first name from email atau username
   String getDisplayName(String fullName) {
     if (fullName.contains('@')) {
@@ -79,6 +99,15 @@ class _HomePageState extends State<HomePage> {
       // Jika berupa nama, ambil nama pertama
       return fullName.split(' ')[0];
     }
+  }
+
+  // Fungsi untuk pull-to-refresh
+  Future<void> _refresh() async {
+    await Future.delayed(
+      const Duration(seconds: 1),
+    ); // Memberikan delay sebelum memperbarui data
+    await fetchProductsFromApi(); // Memanggil fungsi untuk mengambil produk dari API
+    await fetchOutletsFromApi(); // Memanggil fungsi untuk mengambil outlet dari API
   }
 
   @override
@@ -123,7 +152,8 @@ class _HomePageState extends State<HomePage> {
       ),
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: _refresh,
+          onRefresh:
+              _refresh, // Memanggil fungsi _refresh saat menarik untuk memuat ulang
           color: AppColor.primary,
           backgroundColor: AppColor.white,
           child: SingleChildScrollView(
@@ -144,6 +174,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 16),
 
+                  // Banner images
                   SizedBox(
                     height: 100,
                     width: double.infinity,
@@ -169,6 +200,7 @@ class _HomePageState extends State<HomePage> {
 
                   const SizedBox(height: 24),
 
+                  // Product section
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -228,17 +260,16 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 child: ProductCard(
                                   url: '${product.productImage}',
-                                  productName:
-                                      "${product.productName}-${product.id}",
+                                  productName: "${product.productName}",
                                   productPrice: product.productPrice,
                                   onPressed: () {
-                                    // Navigator.push(
-                                    //   context,
-                                    //   MaterialPageRoute(
-                                    //     builder: (context) =>
-                                    //         DetailProductPage(product: product),
-                                    //   ),
-                                    // );
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            DetailProductPage(id: product.id),
+                                      ),
+                                    );
                                   },
                                 ),
                               );
@@ -250,6 +281,7 @@ class _HomePageState extends State<HomePage> {
 
                   const SizedBox(height: 24),
 
+                  // Explore Shop (Outlets section)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -277,13 +309,30 @@ class _HomePageState extends State<HomePage> {
                                 mainAxisSpacing: 12.0,
                                 crossAxisSpacing: 12.0,
                               ),
-                          itemCount: products.length,
+                          itemCount: outlets.length,
                           itemBuilder: (context, index) {
-                            final product = products[index];
-                            // return OutletImage(
-                            //   url: outlet["image"],
-                            //   text: outlet["address"],
-                            // );
+                            final outlet = outlets[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(
+                                right: 16,
+                                top: 16,
+                                bottom: 20,
+                              ),
+                              child: OutletImage(
+                                url: outlet.image,
+                                text: outlet.address,
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DetailOutletPage(
+                                        outlet: outlet,
+                                      ), // Kirim outlet ke halaman detail
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
                           },
                         ),
                     ],

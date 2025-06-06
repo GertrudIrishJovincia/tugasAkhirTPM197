@@ -15,7 +15,7 @@ class Productpage extends StatefulWidget {
 
 class _ProductpageState extends State<Productpage>
     with TickerProviderStateMixin {
-  List<String> categories = ['Cake', 'Cookies', 'Cupcake'];
+  List<String> categories = ['Cake', 'Cookies', 'Bread', 'Side Dish'];
   String selectedCategory = 'Cake';
   bool isLoading = true;
 
@@ -23,7 +23,8 @@ class _ProductpageState extends State<Productpage>
   final Map<String, List<Map<String, dynamic>>> productsByCategory = {
     'Cake': [],
     'Cookies': [],
-    'Cupcake': [],
+    'Bread': [],
+    'Side Dish': [],
   };
 
   // Variabel untuk menyimpan query pencarian

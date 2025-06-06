@@ -9,6 +9,7 @@ class OutletImage extends StatelessWidget {
     required this.url,
     this.text = '',
     this.colorFilter = 0.5,
+    required Null Function() onPressed,
   });
   final String url;
   final String text;

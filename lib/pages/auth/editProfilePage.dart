@@ -53,28 +53,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
       String newEmail = emailController.text.trim();
       String? newPassword;
 
-      // Cek apakah password diisi
+      // Check if password is provided
       if (passwordController.text.isNotEmpty) {
         newPassword = passwordController.text;
       }
 
-      // Update profile di local storage
+      // Update profile in local storage
       await LocalStorage.updateUserProfile(
         widget.currentEmail, // old username/email
         newEmail, // new username/email
-        newPassword, // new password (bisa null)
+        newPassword, // new password (can be null)
       );
 
-      // Tampilkan pesan sukses
+      // Show success message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Profile berhasil diperbarui!'),
+            content: Text('Profile successfully updated!'),
             backgroundColor: Colors.green,
           ),
         );
 
-        // Kembali ke profile page dengan indikasi berhasil
+        // Go back to profile page with success indicator
         Navigator.pop(context, true);
       }
     } catch (e) {
@@ -149,7 +149,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Fill in the information below to update your profile',
+                          'Fill out the information below to update your profile',
                           style: AppFont.nunitoSansRegular.copyWith(
                             fontSize: 14,
                             color: AppColor.dark.withOpacity(0.6),
@@ -184,7 +184,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   // New Password Field
                   Input(
                     labelText: 'New Password (Optional)',
-                    hintText: 'Enter new password if you want to change',
+                    hintText: 'Enter a new password if you want to change it',
                     controller: passwordController,
                     isPassword: true,
                     validator: (value) {
@@ -255,7 +255,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Leave password fields empty if you don\'t want to change your password.',
+                            'Leave the password fields empty if you do not want to change your password.',
                             style: AppFont.nunitoSansRegular.copyWith(
                               fontSize: 12,
                               color: AppColor.dark.withOpacity(0.7),
