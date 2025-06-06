@@ -1,9 +1,9 @@
-import 'dart:developer';
+// import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 import 'package:proyekakhir/models/product.dart';
 import 'package:proyekakhir/pages/product/detailProductPage.dart';
-import 'package:proyekakhir/providers/favoriteProvider.dart';
+// import 'package:proyekakhir/providers/favoriteProvider.dart';
 import 'package:proyekakhir/config/app/appColor.dart';
 import 'package:proyekakhir/config/app/appFont.dart';
 import 'package:proyekakhir/components/widgets/productCard.dart';

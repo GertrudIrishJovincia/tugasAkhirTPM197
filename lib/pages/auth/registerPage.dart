@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyekakhir/components/customWidgets/button.dart';
 import 'package:proyekakhir/components/customWidgets/input.dart';
-import 'package:proyekakhir/components/customWidgets/toast.dart';
+// import 'package:proyekakhir/components/customWidgets/toast.dart';
 import 'package:proyekakhir/config/app/appColor.dart';
 import 'package:proyekakhir/config/app/appFont.dart';
 import 'package:proyekakhir/pages/auth/loginPage.dart';
