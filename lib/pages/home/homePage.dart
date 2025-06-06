@@ -300,6 +300,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         )
                       else
+                        // Ganti bagian GridView.builder untuk outlet dengan kode ini:
                         GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -308,26 +309,37 @@ class _HomePageState extends State<HomePage> {
                                 crossAxisCount: 2,
                                 mainAxisSpacing: 12.0,
                                 crossAxisSpacing: 12.0,
+                                childAspectRatio:
+                                    0.8, // Menambahkan aspect ratio untuk konsistensi
                               ),
                           itemCount: outlets.length,
                           itemBuilder: (context, index) {
                             final outlet = outlets[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                right: 16,
-                                top: 16,
-                                bottom: 20,
-                              ),
+                            return GestureDetector(
+                              onTap: () {
+                                print(
+                                  'Outlet tapped: ${outlet.name}',
+                                ); // Debug print
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        DetailOutletPage(outlet: outlet),
+                                  ),
+                                );
+                              },
                               child: OutletImage(
                                 url: outlet.image,
                                 text: outlet.address,
                                 onPressed: () {
+                                  print(
+                                    'OutletImage onPressed called',
+                                  ); // Debug print
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => DetailOutletPage(
-                                        outlet: outlet,
-                                      ), // Kirim outlet ke halaman detail
+                                      builder: (context) =>
+                                          DetailOutletPage(outlet: outlet),
                                     ),
                                   );
                                 },
