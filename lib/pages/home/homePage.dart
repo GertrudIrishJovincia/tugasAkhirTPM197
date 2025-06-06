@@ -5,15 +5,16 @@ import 'package:proyekakhir/components/widgets/productCard.dart';
 import 'package:proyekakhir/components/widgets/standSearchBar.dart';
 import 'package:proyekakhir/config/app/appColor.dart';
 import 'package:proyekakhir/config/app/appFont.dart';
-import 'package:proyekakhir/models/product.dart';
-import 'package:proyekakhir/pages/outlet/detailOutletPage.dart';
+import 'package:proyekakhir/pages/home/profileKesan.dart';
 import 'package:proyekakhir/pages/product/detailProductPage.dart';
 import 'package:proyekakhir/pages/product/favoritePage.dart';
 import 'package:proyekakhir/pages/product/orderHistoryPage.dart';
 import 'package:proyekakhir/pages/product/productPage.dart';
+import 'package:proyekakhir/pages/outlet/detailOutletPage.dart';
 import 'package:proyekakhir/services/apiservice.dart';
 import 'package:proyekakhir/util/local_storage.dart';
 import 'package:proyekakhir/models/outlet.dart';
+import 'package:proyekakhir/models/product.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -144,6 +145,19 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute(
                   builder: (context) => const OrderHistoryPage(),
                 ),
+              );
+            },
+          ),
+          // Menu Profil
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            color: AppColor.primary,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Profilekesan(),
+                ), // Arahkan ke halaman Profile
               );
             },
           ),

@@ -5,6 +5,8 @@ class Outlet {
   final String image;
   final int outletSells;
   final String createdAt;
+  final double latitude; // Pastikan ada properti latitude
+  final double longitude;
 
   Outlet({
     required this.id,
@@ -13,6 +15,8 @@ class Outlet {
     required this.image,
     required this.outletSells,
     required this.createdAt,
+    required this.latitude, // Inisialisasi latitude
+    required this.longitude,
   });
 
   factory Outlet.fromJson(Map<String, dynamic> json) {
@@ -23,6 +27,8 @@ class Outlet {
       image: json['image'],
       outletSells: json['outlet_sells'],
       createdAt: json['created_at'],
+      latitude: json['latitude'], // Pastikan mendapatkan latitude dari JSON
+      longitude: json['longitude'],
     );
   }
 }

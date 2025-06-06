@@ -3,7 +3,6 @@ import 'package:proyekakhir/config/app/appColor.dart';
 import 'package:proyekakhir/config/app/appFont.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'package:proyekakhir/pages/product/orderDetailPage.dart'; // Import halaman detail
 
 class OrderHistoryPage extends StatelessWidget {
   const OrderHistoryPage({super.key});
@@ -80,16 +79,7 @@ class OrderHistoryPage extends StatelessWidget {
 
               return GestureDetector(
                 // Menambahkan GestureDetector agar bisa di-tap
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => OrderDetailPage(
-                        order: order,
-                      ), // Navigasi ke detail pesanan
-                    ),
-                  );
-                },
+                onTap: () {},
                 child: Card(
                   margin: const EdgeInsets.only(bottom: 12),
                   shape: RoundedRectangleBorder(

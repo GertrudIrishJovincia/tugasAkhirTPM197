@@ -16,6 +16,7 @@ void main() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
+  // Menunggu inisialisasi provider dan SharedPreferences selesai
   runApp(
     MultiProvider(
       providers: [
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Cake Shop',
       theme: ThemeData(useMaterial3: true),
+      // Tentukan initialRoute sesuai status login
       initialRoute: isLoggedIn ? '/dashboard' : AuthRoutes.getStarted,
       getPages: [
         GetPage(

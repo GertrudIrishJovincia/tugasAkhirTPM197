@@ -308,15 +308,15 @@ class _DetailProductPageState extends State<DetailProductPage> {
                 ),
                 PillsButton(
                   onPressed: () {
-                    // Add product to cart
                     final cartItem = {
                       'id': product.id,
                       'productName': product.productName,
                       'productPrice': product.productPrice,
                       'productImage': product.productImage,
-                      'category': product.category,
-                      'cakeWording': cakeWording, // Include custom wording
-                      'selectedSize': selectedSize, // Include selected size
+                      'selectedSize':
+                          selectedSize, // Pastikan ukuran dikirim dengan benar
+                      'cakeWording':
+                          cakeWording, // Pastikan teks kustom dikirim dengan benar
                     };
                     Provider.of<CartProvider>(
                       context,
