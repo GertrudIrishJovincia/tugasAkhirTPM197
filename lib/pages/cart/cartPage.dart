@@ -45,7 +45,9 @@ class CartPage extends StatelessWidget {
                       style: AppFont.nunitoSansSemiBold,
                     ),
                     subtitle: Text(
-                      formatIDRCurrency(number: item['productPrice'] ?? 0),
+                      formatIDRCurrency(
+                        number: item['productPrice'].toDouble(),
+                      ), // Convert to double if necessary
                     ),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete, color: AppColor.red),
@@ -68,7 +70,9 @@ class CartPage extends StatelessWidget {
                     children: [
                       Text('Total', style: AppFont.nunitoSansRegular),
                       Text(
-                        formatIDRCurrency(number: cart.totalPrice),
+                        formatIDRCurrency(
+                          number: cart.totalPrice.toDouble(),
+                        ), // Convert to double if necessary
                         style: AppFont.nunitoSansBold.copyWith(
                           fontSize: 20,
                           color: AppColor.primary,

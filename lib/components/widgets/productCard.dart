@@ -82,7 +82,7 @@ class ProductCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          formatIDRCurrency(number: productPrice),
+                          formatIDRCurrency(number: productPrice.toDouble()),
                           style: AppFont.nunitoSansBold.copyWith(
                             color: AppColor.primary,
                             fontSize: 12,

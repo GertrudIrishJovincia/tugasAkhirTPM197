@@ -11,6 +11,7 @@ import 'package:proyekakhir/pages/cart/cartPage.dart';
 import 'package:proyekakhir/providers/cardProviders.dart';
 import 'package:proyekakhir/services/apiservice.dart';
 import 'package:proyekakhir/util/local_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailProductPage extends StatefulWidget {
   final String id;
@@ -24,14 +25,18 @@ class DetailProductPage extends StatefulWidget {
 class _DetailProductPageState extends State<DetailProductPage> {
   late Future<Product> _futureProduct;
   bool isFavorite = false;
+  String? cakeWording; // Menyimpan teks kustom untuk kue
+  String selectedSize = '16 cm'; // Ukuran default
 
   @override
   void initState() {
     super.initState();
     _futureProduct = Apiservice.fetchProductById(widget.id);
     checkFavoriteStatus();
+    loadSizeAndWording(); // Memuat data ukuran dan teks kustom
   }
 
+  // Cek status favorit
   void checkFavoriteStatus() async {
     List<String>? favoriteIds = await LocalStorage.getFavoriteIds();
     setState(() {
@@ -39,6 +44,50 @@ class _DetailProductPageState extends State<DetailProductPage> {
     });
   }
 
+  // Menyimpan ukuran dan teks kustom ke SharedPreferences
+  void saveSizeAndWording(String size, String wording) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selected_size', size);
+    await prefs.setString('cake_wording', wording);
+  }
+
+  // Memuat ukuran dan teks kustom dari SharedPreferences
+  Future<void> loadSizeAndWording() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? size = prefs.getString('selected_size');
+    String? wording = prefs.getString('cake_wording');
+
+    setState(() {
+      selectedSize =
+          size ?? '16 cm'; // Menampilkan ukuran default jika tidak ada
+      cakeWording =
+          wording ?? ''; // Menampilkan teks kustom default jika tidak ada
+    });
+  }
+
+  // Menangani perubahan ukuran
+  void onSizeSelected(String size) {
+    setState(() {
+      selectedSize = size;
+    });
+    saveSizeAndWording(
+      size,
+      cakeWording ?? '',
+    ); // Menyimpan ukuran dan teks kustom
+  }
+
+  // Menangani perubahan teks kustom
+  void onWordingChanged(String value) {
+    setState(() {
+      cakeWording = value;
+    });
+    saveSizeAndWording(
+      selectedSize,
+      cakeWording ?? '',
+    ); // Menyimpan ukuran dan teks kustom
+  }
+
+  // Menangani toggling status favorit
   void toggleFavorite() async {
     List<String> favoriteIds = await LocalStorage.getFavoriteIds() ?? [];
     if (isFavorite) {
@@ -149,47 +198,68 @@ class _DetailProductPageState extends State<DetailProductPage> {
                     textAlign: TextAlign.justify,
                   ),
                   const SizedBox(height: 16),
-                  CustomRadioButton(
-                    elevation: 0,
-                    enableShape: true,
-                    buttonTextStyle: ButtonTextStyle(
-                      textStyle: AppFont.nunitoSansSemiBold.copyWith(
-                        color: AppColor.dark,
-                        fontSize: 12,
-                      ),
-                    ),
-                    unSelectedColor: AppColor.white,
-                    unSelectedBorderColor: AppColor.dark.withOpacity(0.3),
-                    selectedBorderColor: AppColor.primary,
-                    buttonLables: const ['16 cm', '20 cm', '22 cm', '24 cm'],
-                    buttonValues: const ['16 cm', '20 cm', '22 cm', '24 cm'],
-                    width: 80,
-                    padding: 8,
-                    spacing: 1,
-                    radioButtonValue: (value) {
-                      debugPrint('Selected size: $value');
-                    },
-                    selectedColor: AppColor.primary,
-                    enableButtonWrap: false,
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.border_color,
-                        size: 16,
-                        color: AppColor.grayWafer,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        ' Add wording on your cake (optional)',
-                        style: AppFont.nunitoSansRegular.copyWith(
-                          color: AppColor.grayWafer,
+
+                  // Display size options only for Cake category
+                  if (product.category == 'Cake')
+                    CustomRadioButton(
+                      elevation: 0,
+                      enableShape: true,
+                      buttonTextStyle: ButtonTextStyle(
+                        textStyle: AppFont.nunitoSansSemiBold.copyWith(
+                          color: AppColor.dark,
                           fontSize: 12,
                         ),
                       ),
-                    ],
-                  ),
+                      unSelectedColor: AppColor.white,
+                      unSelectedBorderColor: AppColor.dark.withOpacity(0.3),
+                      selectedBorderColor: AppColor.primary,
+                      buttonLables: const ['16 cm', '20 cm', '22 cm', '24 cm'],
+                      buttonValues: const ['16 cm', '20 cm', '22 cm', '24 cm'],
+                      width: 80,
+                      padding: 8,
+                      spacing: 1,
+                      radioButtonValue: (value) {
+                        onSizeSelected(value); // Menyimpan ukuran yang dipilih
+                      },
+                      selectedColor: AppColor.primary,
+                      enableButtonWrap: false,
+                    ),
+                  const SizedBox(height: 16),
+
+                  // Input for custom cake wording
+                  if (product.category == 'Cake')
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          Icons.border_color,
+                          size: 16,
+                          color: AppColor.grayWafer,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          ' Add wording on your cake (optional)',
+                          style: AppFont.nunitoSansRegular.copyWith(
+                            color: AppColor.grayWafer,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          onChanged: onWordingChanged, // Menyimpan teks kustom
+                          decoration: InputDecoration(
+                            hintText: 'Enter your wording here...',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -226,7 +296,9 @@ class _DetailProductPageState extends State<DetailProductPage> {
                       ),
                     ),
                     Text(
-                      formatIDRCurrency(number: product.productPrice ?? 0),
+                      formatIDRCurrency(
+                        number: (product.productPrice ?? 0).toDouble(),
+                      ),
                       style: AppFont.nunitoSansBold.copyWith(
                         fontSize: 18,
                         color: AppColor.primary,
@@ -243,6 +315,8 @@ class _DetailProductPageState extends State<DetailProductPage> {
                       'productPrice': product.productPrice,
                       'productImage': product.productImage,
                       'category': product.category,
+                      'cakeWording': cakeWording, // Include custom wording
+                      'selectedSize': selectedSize, // Include selected size
                     };
                     Provider.of<CartProvider>(
                       context,

@@ -1,5 +1,5 @@
-String formatIDRCurrency({int number = 0}) {
-  String str = number.toString();
+String formatIDRCurrency({double number = 0}) {
+  String str = number.toStringAsFixed(0); // Convert to string without decimals
   String results = '';
 
   int count = 0;
@@ -11,5 +11,5 @@ String formatIDRCurrency({int number = 0}) {
     }
   }
 
-  return "Rp $results";
+  return "Rp $results"; // Format angka menjadi IDR
 }

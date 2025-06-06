@@ -300,7 +300,6 @@ class _HomePageState extends State<HomePage> {
                           ),
                         )
                       else
-                        // Ganti bagian GridView.builder untuk outlet dengan kode ini:
                         GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -310,16 +309,14 @@ class _HomePageState extends State<HomePage> {
                                 mainAxisSpacing: 12.0,
                                 crossAxisSpacing: 12.0,
                                 childAspectRatio:
-                                    0.8, // Menambahkan aspect ratio untuk konsistensi
+                                    0.8, // Menyediakan nilai double
                               ),
                           itemCount: outlets.length,
                           itemBuilder: (context, index) {
                             final outlet = outlets[index];
                             return GestureDetector(
                               onTap: () {
-                                print(
-                                  'Outlet tapped: ${outlet.name}',
-                                ); // Debug print
+                                print('Outlet tapped: ${outlet.name}');
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -332,9 +329,7 @@ class _HomePageState extends State<HomePage> {
                                 url: outlet.image,
                                 text: outlet.address,
                                 onPressed: () {
-                                  print(
-                                    'OutletImage onPressed called',
-                                  ); // Debug print
+                                  print('OutletImage onPressed called');
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -349,7 +344,6 @@ class _HomePageState extends State<HomePage> {
                         ),
                     ],
                   ),
-
                   const SizedBox(height: 36),
                 ],
               ),

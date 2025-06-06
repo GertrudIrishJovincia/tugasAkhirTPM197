@@ -1,31 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:proyekakhir/config/app/appColor.dart';
 import 'package:proyekakhir/config/app/appFont.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:proyekakhir/pages/product/orderDetailPage.dart'; // Import halaman detail
 
 class OrderHistoryPage extends StatelessWidget {
   const OrderHistoryPage({super.key});
 
-  // Contoh data pesanan dummy
-  final List<Map<String, String>> orders = const [
-    {
-      "orderId": "INV-001",
-      "date": "2025-05-01",
-      "status": "Selesai",
-      "total": "Rp 120.000",
-    },
-    {
-      "orderId": "INV-002",
-      "date": "2025-05-05",
-      "status": "Dalam Proses",
-      "total": "Rp 80.000",
-    },
-    {
-      "orderId": "INV-003",
-      "date": "2025-05-10",
-      "status": "Dibatalkan",
-      "total": "Rp 50.000",
-    },
-  ];
+  // Mengambil riwayat pesanan dari SharedPreferences
+  Future<List<Map<String, String>>> fetchOrderHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> orderHistoryData = prefs.getStringList('orderHistory') ?? [];
+
+    // Mengonversi data JSON menjadi list Map
+    return orderHistoryData.map((orderJson) {
+      final order = Map<String, String>.from(json.decode(orderJson));
+      return order;
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,34 +31,66 @@ class OrderHistoryPage extends StatelessWidget {
         backgroundColor: AppColor.primary,
         elevation: 0,
       ),
-      body: orders.isEmpty
-          ? Center(
+      body: FutureBuilder<List<Map<String, String>>>(
+        future:
+            fetchOrderHistory(), // Memanggil fungsi untuk mengambil riwayat pesanan
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            ); // Loading state
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
               child: Text(
                 'Belum ada riwayat pesanan',
                 style: AppFont.nunitoSansRegular.copyWith(fontSize: 16),
               ),
-            )
-          : ListView.builder(
-              itemCount: orders.length,
-              padding: const EdgeInsets.all(16),
-              itemBuilder: (context, index) {
-                final order = orders[index];
-                Color statusColor;
-                switch (order['status']) {
-                  case 'Selesai':
-                    statusColor = Colors.green;
-                    break;
-                  case 'Dalam Proses':
-                    statusColor = Colors.orange;
-                    break;
-                  case 'Dibatalkan':
-                    statusColor = Colors.red;
-                    break;
-                  default:
-                    statusColor = Colors.grey;
-                }
+            );
+          }
 
-                return Card(
+          final orders = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: orders.length,
+            padding: const EdgeInsets.all(16),
+            itemBuilder: (context, index) {
+              final order = orders[index];
+              Color statusColor;
+
+              // Menentukan warna berdasarkan status pesanan
+              switch (order['status']) {
+                case 'Selesai':
+                  statusColor = Colors.green;
+                  break;
+                case 'Dalam Proses':
+                  statusColor = Colors.orange;
+                  break;
+                case 'Dibatalkan':
+                  statusColor = Colors.red;
+                  break;
+                default:
+                  statusColor = Colors.grey;
+              }
+
+              return GestureDetector(
+                // Menambahkan GestureDetector agar bisa di-tap
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OrderDetailPage(
+                        order: order,
+                      ), // Navigasi ke detail pesanan
+                    ),
+                  );
+                },
+                child: Card(
                   margin: const EdgeInsets.only(bottom: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -114,9 +139,12 @@ class OrderHistoryPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
